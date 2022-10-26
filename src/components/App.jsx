@@ -1,26 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { nanoid } from 'nanoid';
+import { selectContact } from 'redux/contacts/contacts-selectors';
+import { selectFilter } from 'redux/filter/filter-selectors';
+import { addContact, deleteContact } from 'redux/contacts/contacts-slice';
 import { ContactForm } from './ContactForm/ContactForm';
 import { Filter } from './Filter/Filter';
 import { ContactList } from './ContactList/ContactList';
+import { filterContacts } from 'redux/filter/filter-slice';
 
 export const App = () => {
-  const [contacts, setContacts] = useState(
-    () =>
-      JSON.parse(localStorage.getItem('contacts')) ?? [
-        { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-        { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-        { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-        { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-      ]
-  );
-  const [filter, setFilter] = useState('');
+  const contacts = useSelector(selectContact);
+  const filter = useSelector(selectFilter);
+  const dispatch = useDispatch();
 
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
-
-  const addContact = data => {
+  const handleChange = data => {
     const newContact = {
       id: nanoid(),
       ...data,
@@ -30,19 +23,18 @@ export const App = () => {
       return alert(`${newContact.name} is already in contacts.`);
     }
 
-    setContacts(prevState => [...prevState, newContact]);
+    dispatch(addContact(newContact));
   };
 
   const findSameName = contactName =>
     contacts.find(contact => contact.name === contactName);
 
   const handleFilter = ({ target: { value } }) => {
-    setFilter(value);
+    dispatch(filterContacts(value));
   };
 
-  const deleteContact = id => {
-    setContacts(prevState => prevState.filter(contact => contact.id !== id),
-    );
+  const handleDelete = id => {
+    dispatch(deleteContact(id));
   };
 
   const filterContactsList = contacts.filter(contact =>
@@ -52,14 +44,11 @@ export const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
-      <ContactForm addContact={addContact} />
+      <ContactForm handleChange={handleChange} />
 
       <h2>Contacts</h2>
       <Filter startFilter={filter} handleFilter={handleFilter} />
-      <ContactList
-        contacts={filterContactsList}
-        deleteContact={deleteContact}
-      />
+      <ContactList contacts={filterContactsList} handleDelete={handleDelete} />
     </div>
   );
 };

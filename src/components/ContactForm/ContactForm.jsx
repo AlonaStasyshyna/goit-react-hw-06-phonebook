@@ -2,7 +2,7 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Form, Label, Input, Button } from './ContactForm.styled';
 
-export const ContactForm = ({ addContact }) => {
+export const ContactForm = ({ handleChange }) => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
@@ -22,7 +22,7 @@ export const ContactForm = ({ addContact }) => {
   const onSubmit = e => {
     e.preventDefault();
 
-    addContact({ name, number });
+    handleChange({ name, number });
     formReset();
   };
 
@@ -65,5 +65,5 @@ export const ContactForm = ({ addContact }) => {
 };
 
 ContactForm.propTypes = {
-  addContact: PropTypes.func.isRequired,
+  handleChange: PropTypes.func.isRequired,
 };
